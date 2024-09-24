@@ -33,7 +33,7 @@ def t1(img):
     # 中值滤波
     img = cv.medianBlur(img, 5)
 
-    # 腐蚀操作，将上方的横向白色区域腐蚀掉
+    # 腐蚀操作
     kernel = np.ones((5, 5), np.uint8)
     dst = cv.erode(img, kernel, iterations=1, borderType=cv.BORDER_REFLECT)
 
