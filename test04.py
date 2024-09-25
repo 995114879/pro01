@@ -39,6 +39,10 @@ def t1(img):
     # 二值化
     _, threshold = cv.threshold(gamma_corrected, 137, 255, cv.THRESH_TOZERO_INV)
 
+    plt.imshow(cv.cvtColor(threshold, cv.COLOR_BGR2RGB))
+    plt.title('img')
+    plt.show()
+
     # 设置伽玛值，小于1的值会提高对比度，大于1的值会降低对比度
     gamma = 0.4
     gamma_corrected = adjust_gamma(threshold, gamma)
@@ -49,7 +53,6 @@ def t1(img):
     # 膨胀+腐蚀操作
     kernel = np.ones((5, 5), np.uint8)
     dst1 = cv.dilate(threshold, kernel, iterations=6)
-    kernel = np.ones((5, 5), np.uint8)
     dst = cv.erode(dst1, kernel, iterations=2, borderType=cv.BORDER_REFLECT)
 
     # Canny边缘检测
@@ -74,9 +77,9 @@ def t1(img):
     kernel = np.ones((5, 5), np.uint8)
     img2 = cv.erode(img2, kernel, iterations=3, borderType=cv.BORDER_REFLECT)
 
-    cv.imwrite('./labels/20240924145005.jpg', img2)
+    cv.imwrite('labels/label/20240924145005.jpg', img2)
 
 
 if __name__ == '__main__':
-    img = cv.imread("./datas/20240924145005.bmp")
+    img = cv.imread("datas/img/20240924145005.bmp")
     t1(img)

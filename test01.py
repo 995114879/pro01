@@ -81,9 +81,9 @@ def t1(img):
     # cv.destroyAllWindows()
 
     # 保存本地
-    cv.imwrite('./labels/Image_20240814144256721.jpg', img2)
+    cv.imwrite('labels/label/Image_20240814144256721.jpg', img2)
 
 
 if __name__ == '__main__':
-    img = cv.imread("./datas/Image_20240814144256721.bmp")
+    img = cv.imread("datas/img/Image_20240814144256721.bmp")
     t1(img)

@@ -35,9 +35,9 @@ def t1(img):
     dst1 = cv.dilate(dst1, kernel, iterations=2)
 
     # 保存本地
-    cv.imwrite('./labels/Image_20240814152448912.jpg', dst1)
+    cv.imwrite('labels/label/Image_20240814152448912.jpg', dst1)
 
 
 if __name__ == '__main__':
-    img = cv.imread("./datas/Image_20240814152448912.bmp")
+    img = cv.imread("datas/img/Image_20240814152448912.bmp")
     t1(img)

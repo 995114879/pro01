@@ -74,9 +74,9 @@ def t1(img):
     M = cv.getRotationMatrix2D(center=(0, 0), angle=13.5, scale=1)
     img2 = cv.warpAffine(img2, M, (cols, rows), borderValue=[0, 0, 0])
 
-    cv.imwrite('./labels/Image_20240814153036064.jpg', img2)
+    cv.imwrite('labels/label/Image_20240814153036064.jpg', img2)
 
 
 if __name__ == '__main__':
-    img = cv.imread('./datas/Image_20240814153036064.bmp')
+    img = cv.imread('datas/img/Image_20240814153036064.bmp')
     t1(img)
