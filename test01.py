@@ -1,6 +1,8 @@
 import numpy as np
 import cv2 as cv
-
+"""
+Image_20240814144256721.bmp
+"""
 
 # import matplotlib.pyplot as plt
 

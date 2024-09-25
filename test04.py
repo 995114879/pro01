@@ -1,7 +1,10 @@
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
-
+"""
+20240924145001.bmp
+20240924145005.bmp
+"""
 
 # 定义伽玛校正的函数
 def adjust_gamma(image, gamma=1.0):

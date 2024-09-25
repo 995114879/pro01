@@ -1,6 +1,9 @@
 import numpy as np
 import cv2 as cv
-
+"""
+Image_20240814153033081.bmp
+Image_20240814153036064.bmp
+"""
 
 # 定义伽玛校正的函数
 def adjust_gamma(image, gamma=1.0):
