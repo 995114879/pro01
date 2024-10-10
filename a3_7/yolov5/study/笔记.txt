@@ -1,0 +1,87 @@
+一、文件说明
+    classify: 用YOLOv5的骨干网络实现分类业务
+    data: 存储配置文件
+        data/***.yaml: 数据配置文件，给定数据位置的
+        data/hyps/***.yaml: 超参数配置文件
+        data/images: 测试图像文件所在的文件夹
+        data/scripts: 脚本文件夹，主要用于下载数据(Linux环境下可运行)
+    models: 模型核心代码以及目标检测模型结构配置文件
+    segment: YOLOv5应用到图像分割业务中的训练、预测、评估代码
+    utils: 工具类代码
+    detect.py: 目标检测模型检测的相关代码--> 用训练好的模型做目标检测
+    export.py: 将PyTorch生成的原始格式模型转换成其它格式
+    train.py: 目标检测模型训练代码
+    val.py: 目标检测模型评估代码
+    hubconf.py: 针对torch.hub提供的入口代码文件
+===========================================================
+YOLOv5结构更新(v7.0代码结构相比于ppt所说的内容):
+-1. 默认激活函数采用: nn.SiLU
+-2. 取消了Focus结构，直接替代为卷积: 6*6的卷积，步长为2，填充为2
+-3. 模型的主要特征提取模块从CSP替换成C3结构：更改了部分卷积操作 + BN位置 + Neck部分的C3也加入了残差
+-4. 将SPP池化更改为SPPF池化: SPPF执行速度更快
+-5. 回归转换公式发生变化:
+    高度/宽度转换公式: ---> 预测边框尺度最多可以是先验框尺度的4倍 --> 大小范围是:[0,4]
+        预测边框宽度=(sigmoid(tw) * 2)**2 * pw
+        预测边框高度=(sigmoid(th) * 2)**2 * ph
+    中心点转换公式:
+        cx=(sigmoid(tx) * 2 - 0.5 + gx) * stride[i]
+        cy=(sigmoid(ty) * 2 - 0.5 + gy) * stride[i]
+    NOTE:
+        gx、gy表示grid cell的左上角坐标
+        pw、ph表示anchor box候选框尺度大小
+        stride表示原始图像和feature map之间的缩放系数
+-6. 分类概率计算采用sigmoid
+-7. 训练过程中，数据增强：mosaic、mixup、随机的HSV通道增强、随机的水平方向翻转、随机的垂直方向翻转、cutout、基于矩阵坐标映射的增强(OpenCV的API：平移、旋转、缩放、剪切、透视....)
+-8. 训练过程中，如果给定的anchor box尺度覆盖面不够的情况下，会自适应的计算尺度值
+-9. 在GPU上训练的时候，支持多GPU、混合精度训练(在训练的时候支持float32和float16的计算)
+-10. 训练过程中，支持多尺度训练，支持随机在320~960（默认情况）中随机选择一个能够整除32的尺度
+-11. 学习率的变化支持WarmUP更新方式, WarmUP学习率整体趋势是先增大再减小: 主要目的是为了前期快速更新参数，让参数尽可能的逼近全局最优解，并且跳过局部最优。
+-12. 学习率整体角度随着epoch变小(线性变化和余弦变化)
+-13. 优化器进行分组的参数更新，仅对卷积和全连接的W进行惩罚性限制
+-14. 训练过程中，支持通过参数image_weights更改样本的抽样权重，基于模型各个类别的评估指标(mAP)，更改样本被抽中，参与模型训练的可能性 --> 如果这个类别的mAP评估指标比较高，那么包含这个类别边框的样本被抽中的可能性就降低
+-15. 训练过程中，采用CIoU作为边框回归的损失函数
+===========================================================
+异常说明：
+    1. OMP: Error #15: Initializing libiomp5md.dll, but found libiomp5md.dll already initialized.
+        产生原因：环境中存在多个libiomp5md.dll文件
+        解决方式：os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE" 或者 删除其中一个文件
+===========================================================
+操作：
+    NOTE: 所有的python命令行操作，均在yolov5根目录下进行操作
+    源码下载及分支构建：
+        在准备保存yolov5项目代码的文件夹中，启动命令行，执行以下命令(git已安装好):
+            git clone https://github.com/ultralytics/yolov5.git
+        代码导入到PyCharm中
+        选择修改分支：master --[Checkout...]--> v7.0 --[New Branch]--> xm_cv01_v7.0
+    依赖库的安装：
+        结合requirements.txt进行对应的依赖库的安装
+    YOLOv5的测试效果(推理)：
+        01_YOLOv5目标检测效果测试.py
+        python detect.py --weights study/yolov5s.pt --source data/images --save-txt
+    YOLOv5的模型训练及模型评估：
+        最简单的训练来讲：
+            -a. 给定训练数据配置文件
+                给定训练数据在磁盘的哪个位置，就是给定路径即可
+                NOTE: 图像x的路径中一定包含images，标签y的路径中一定包含labels
+            -b. 从github上下载训练好的yolov5模型作为初始的迁移模型即可
+            python train.py --data ./data/coco128_copy.yaml --weights ./study/yolov5s.pt  --batch-size 8 --workers 0 --epochs 3
+        训练好的模型评估:
+            python val.py --data ./data/coco128_copy.yaml --weights ./runs/train/exp3/weights/best.pt --workers 0
+        模型文件的转换:
+            python export.py --include onnx --weights ./runs/train/exp3/weights/best.pt
+    查看网络结构
+           02_YOLOv5网络结构创建代码理解.py
+           编写/新增模块:
+                模块的来源：一般就是其它论文/算法中提出的比较有效的模块结构;
+                步骤:
+                    -1-. 在common.py文件中定义好对应的模块代码，并完成模块的基本测试
+                    -2-. 在yolo.py文件中的parse_model方法中，增加对应新增模块的解析代码
+                    -3-. 在yaml模型结构配置文件中，更改/新增对应的模块以及模块参数即可
+    运行train.py文件，并check/debug各个阶段的执行逻辑
+        -1. 从网络上下载对应版本的模型文件：yolov5s.pt，并放到train.py所在的文件夹中
+        -2. 从网络上下载coco_128数据集，并基于coco128.yaml文件的配置路径，放到对应文件夹中
+        -3. 从网络上下载一个字符文件
+        -4. 参数代码的更改：
+            -a. 修改epochs为4
+            -b. 修改batch-size为8
+            -c. 修改workers为0

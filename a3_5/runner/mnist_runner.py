@@ -21,9 +21,9 @@ def tt_dl_model_v0():
         end_time = time.time()
         # 计算并打印耗时（毫秒）
         elapsed_time_ms = (end_time - start_time) * 1000
-        print(f"Elapsed time: {elapsed_time_ms:.3f} ms")  # CPU Elapsed time: 1189675.224 ms
+        print(f"Elapsed time: {elapsed_time_ms:.3f} ms")  # CPU Elapsed time: 1189675.224 ms   GPU 783161.566 ms
         # 将结果保存到DataFrame
-        df = pd.DataFrame(elapsed_time_ms)
+        df = pd.DataFrame([elapsed_time_ms], columns=["Elapsed Time (ms)"])
         # 将DataFrame保存到Excel文件
         df.to_excel('model_performance.xlsx', index=False)
 
@@ -38,8 +38,20 @@ def tt_dl_model_v0():
         )
         print(r)
 
-    # training_model()
-    predict_model()
+    def client_model_with_shell():
+        from a3_5.dl_v0 import shell_client
+        shell_client.run(
+            algo_path=r"output/MNIST/dl_v0/model.pkl"
+        )
+
+    def start_flask_api():
+        from a3_5.dl_v0 import flask_app
+        flask_app.app.run()
+
+    training_model()
+    # predict_model()
+    # client_model_with_shell()
+    # start_flask_api()
 
 
 if __name__ == '__main__':

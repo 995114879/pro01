@@ -10,7 +10,7 @@ import torch.optim as optim
 
 def run(
         img_path_dir
-        , total_epoch=100, batch_size=8, model_output_path="./output/MNIST/dl_v1/model.pkl", use_gpu=True
+        , total_epoch=100, batch_size=8, model_output_path="./output/MNIST/dl_v0/model.pkl", use_gpu=True
 ):
     # 数据加载
     data = Data_Load(img_path_dir, batch_size)
